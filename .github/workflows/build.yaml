@@ -12,7 +12,6 @@ jobs:
       - name: 拉取代码
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.HUB_TOKEN }}
           submodules: recursive
 
       - name: 配置编译用的签名
