@@ -99,4 +99,4 @@ jobs:
             版本: v${{ steps.version.outputs.VERSION }}
 
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.HUB_TOKEN }}
