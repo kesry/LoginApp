@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:background="#800080"
-        android:weightSum="5">
+        android:weightSum="4">
         <LinearLayout android:layout_width="0dp" android:layout_height="60dp"
             android:layout_weight="3"
             android:gravity="center_vertical"
@@ -23,21 +23,6 @@
                 android:textSize="24sp"
                 android:letterSpacing="0.05"
                 android:textColor="#FFFFFF" />
-        </LinearLayout>
-
-        <LinearLayout android:layout_width="0dp" android:layout_height="60dp"
-            android:layout_weight="1"
-            android:gravity="center_vertical|end"
-            android:layout_marginRight="5dp">
-            <ImageButton
-                android:id="@+id/action_update"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:src="@android:drawable/ic_menu_info_details"
-                android:contentDescription="Update"
-                app:tint="#FFFFFF"
-                android:background="#800080" />
         </LinearLayout>
 
         <LinearLayout android:layout_width="0dp" android:layout_height="60dp"
@@ -58,16 +43,83 @@
 
     </LinearLayout>
 
-
     <!-- 数据列表 -->
-
-    <ListView
-        android:id="@+id/list_view"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
-        android:dividerHeight="1px"
-        android:divider="#E0E0E0" />
-    
+        android:fillViewport="true">
+        
+        <ListView
+            android:id="@+id/list_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:dividerHeight="1px"
+            android:divider="#E0E0E0" />
+            
+    </ScrollView>
+
+    <!-- 底部放 列表、主页两个图标按钮 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#F5F5F5"
+        android:padding="4dp"
+        android:weightSum="2">
+        
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="8dp">
+            
+            <ImageButton
+                android:id="@+id/btn_list"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:src="@android:drawable/ic_menu_sort_by_size"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:contentDescription="列表" />
+                
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="列表"
+                android:textSize="12sp"
+                android:textColor="#666666"
+                android:layout_marginTop="2dp" />
+                
+        </LinearLayout>
+        
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="8dp">
+            
+            <ImageButton
+                android:id="@+id/btn_home"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:src="@android:drawable/ic_menu_compass"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:contentDescription="更新" />
+                
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="更新"
+                android:textSize="12sp"
+                android:textColor="#666666"
+                android:layout_marginTop="2dp" />
+                
+        </LinearLayout>
+        
+    </LinearLayout>
 
 </LinearLayout>

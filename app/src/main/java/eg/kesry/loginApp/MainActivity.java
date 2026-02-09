@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
 
         // 初始化组件信息
         actionButton = findViewById(R.id.action_add);
-        updateButton = findViewById(R.id.action_update); // 初始化更新按钮
+        updateButton = findViewById(R.id.btn_home); // 初始化更新按钮
 
         serverListAdapter = new ServerListAdapter(this, serverList);
         listView = findViewById(R.id.list_view);
@@ -126,7 +126,8 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "读取数据失败 " + e.getMessage(), Toast.LENGTH_LONG).show();
+            // 调试的时候打开
+            // Toast.makeText(this, "读取数据失败 " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
         return servers;
@@ -214,12 +215,12 @@ public class MainActivity extends AppCompatActivity {
         this.currentChooseServer = server;
     }
 
-    // /**
-    // * 扫码结果事件
-    // * @param requestCode
-    // * @param resultCode
-    // * @param data
-    // */
+    /**
+    * 扫码结果事件
+    * @param requestCode
+    * @param resultCode
+    * @param data
+    */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (result != null) {
@@ -303,7 +304,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         serverListAdapter.notifyDataSetChanged();
-        makeText("删除成功", Toast.LENGTH_SHORT);
     }
 
     public void editServer(LoginServer server) {

@@ -169,6 +169,7 @@ public class UpdateCheckActivity extends AppCompatActivity {
                     runOnUiThread(() -> {
                         Toast.makeText(UpdateCheckActivity.this, "检查更新失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         checkUpdateButton.setEnabled(true);
+                        updateInfoText.setText("检查更新失败：" + e);
                     });
                 }
 

@@ -88,6 +88,7 @@ public class ServerListAdapter extends BaseAdapter {
                     .setPositiveButton("确定", (dialog, which) -> {
                         // 具体删除功能
                         activity.removeServer(loginServer);
+                        activity.makeText("删除成功", Toast.LENGTH_SHORT);
                     })
                     .setNegativeButton("取消", (dialog, which) -> {
                         dialog.dismiss();
