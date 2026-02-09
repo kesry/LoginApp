@@ -23,19 +23,15 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import org.json.JSONObject;
-import okhttp3.HttpUrl;
+import androidx.core.content.FileProvider;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.MediaType;
 import okhttp3.Callback;
 import okhttp3.Call;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 
@@ -46,9 +42,17 @@ public class UpdateCheckActivity extends AppCompatActivity {
     private TextView updateInfoText;
 
     private String currentVersion;
-    
+    private String pendingVersion;
+    private static final int INSTALL_PERMISSION_REQUEST_CODE = 1;
+    private static final int STORAGE_PERMISSION_REQUEST_CODE = 2;
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 3;
 
     private Handler mainHandler = new Handler(Looper.getMainLooper());
+    private long downloadId = -1;
+    private DownloadManager downloadManager;
+    
+    // 下载完成广播接收器
+    private BroadcastReceiver downloadCompleteReceiver;
 
     private OkHttpClient client = new OkHttpClient.Builder().connectTimeout(15, TimeUnit.SECONDS).build();
 
@@ -61,6 +65,9 @@ public class UpdateCheckActivity extends AppCompatActivity {
         currentVersionText = findViewById(R.id.current_version_text);
         checkUpdateButton = findViewById(R.id.check_update_button);
         updateInfoText = findViewById(R.id.update_info_text);
+
+        // 初始化DownloadManager
+        downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
 
         // 显示当前版本号
         displayCurrentVersion();
@@ -201,8 +208,11 @@ public class UpdateCheckActivity extends AppCompatActivity {
         checkUpdateButton.setEnabled(false);
         checkUpdateButton.setText("更新中...");
         
+        // 保存待处理的版本号
+        pendingVersion = version;
+        
         // 检查存储权限（适配不同Android版本）
-        if (!checkStoragePermissions()) {
+        if (!checkAndRequestStoragePermissions()) {
             return;
         }
         
@@ -216,21 +226,31 @@ public class UpdateCheckActivity extends AppCompatActivity {
     }
     
     /**
-     * 检查存储权限（针对APK下载优化）
+     * 检查并请求存储权限（针对APK下载优化）
      * @return 是否有权限
      */
-    private boolean checkStoragePermissions() {
+    private boolean checkAndRequestStoragePermissions() {
         List<String> permissionsNeeded = new ArrayList<>();
         
-        // Android 13+ 使用DownloadManager不需要特殊存储权限
-        // 但需要通知权限来显示下载进度
+        // Android 13+ (TIRAMISU) 及以上版本
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Android 13+ 主要需要通知权限用于DownloadManager
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) 
                 != PackageManager.PERMISSION_GRANTED) {
                 permissionsNeeded.add(Manifest.permission.POST_NOTIFICATIONS);
             }
-        } else {
-            // Android 6.0-12 需要传统的存储权限
+        } 
+        // Android 10-12 (Q-S)
+        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Android 10+ 使用分区存储，但仍需要读取权限来访问Download目录
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) 
+                != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+            }
+        } 
+        // Android 6.0-9 (M-P)
+        else {
+            // 传统外部存储权限
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) 
                 != PackageManager.PERMISSION_GRANTED) {
                 permissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -243,7 +263,7 @@ public class UpdateCheckActivity extends AppCompatActivity {
         
         if (!permissionsNeeded.isEmpty()) {
             ActivityCompat.requestPermissions(this, 
-                permissionsNeeded.toArray(new String[0]), 1);
+                permissionsNeeded.toArray(new String[0]), STORAGE_PERMISSION_REQUEST_CODE);
             updateInfoText.setText("请授予权限以继续更新");
             checkUpdateButton.setEnabled(true);
             checkUpdateButton.setText("立即更新");
@@ -272,87 +292,61 @@ public class UpdateCheckActivity extends AppCompatActivity {
         return true;
     }
 
+
     private void downloadApk(String version) {
         updateInfoText.setText("正在下载更新包...");
 
         // 构建下载URL
         String apkUrl = "https://github.com/kesry/LoginApp/releases/download/" + version + "/app-release.apk";
         
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(apkUrl));
-        request.setTitle("LoginApp更新");
-        request.setDescription("正在下载版本 " + version);
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "LoginApp-" + version + ".apk");
-        
-        // 获取DownloadManager实例
-        DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-        long downloadId = downloadManager.enqueue(request);
-        
-        // 注册广播接收器监听下载完成
-        IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-        BroadcastReceiver receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                long receivedDownloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-                if (downloadId == receivedDownloadId) {
-                    installApk(downloadManager, downloadId);
-                    unregisterReceiver(this);
-                }
-            }
-        };
-        ContextCompat.registerReceiver(this, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
-        
-        updateInfoText.setText("开始下载更新包，请稍候...");
-    }
-
-    private void installApk(DownloadManager downloadManager, long downloadId) {
-        DownloadManager.Query query = new DownloadManager.Query();
-        query.setFilterById(downloadId);
-        Cursor cursor = downloadManager.query(query);
-        
-        if (cursor.moveToFirst()) {
-            int statusIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
-            int status = cursor.getInt(statusIndex);
+        try {
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(apkUrl));
+            request.setTitle("LoginApp更新");
+            request.setDescription("正在下载版本 " + version);
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
             
-            if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                int uriIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI);
-                String downloadedFileUri = cursor.getString(uriIndex);
-                
-                if (downloadedFileUri != null) {
-                    Uri apkUri = Uri.parse(downloadedFileUri);
-                    
-                    Intent installIntent = new Intent(Intent.ACTION_VIEW);
-                    installIntent.setDataAndType(apkUri, "application/vnd.android.package-archive");
-                    installIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    
-                    updateInfoText.setText("下载完成，准备安装...");
-                    startActivity(installIntent);
-                }
+            // 设置下载路径 - 使用应用私有目录更安全
+            String fileName = "LoginApp-" + version + ".apk";
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Android 10+ 使用Download目录
+                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
             } else {
-                int reasonIndex = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
-                int reason = cursor.getInt(reasonIndex);
-                updateInfoText.setText("下载失败，错误代码: " + reason);
-                checkUpdateButton.setEnabled(true);
-                checkUpdateButton.setText("重新下载");
-                checkUpdateButton.setOnClickListener(v -> checkForUpdates());
+                // 较老版本使用应用私有目录
+                request.setDestinationInExternalFilesDir(this, Environment.DIRECTORY_DOWNLOADS, fileName);
             }
+            
+            // 开始下载
+            downloadId = downloadManager.enqueue(request);
+            
+            updateInfoText.setText("正在后台下载安装包。");
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            updateInfoText.setText("下载失败: " + e.getMessage());
+            checkUpdateButton.setEnabled(true);
+            checkUpdateButton.setText("立即更新");
         }
-        cursor.close();
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 1) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // 权限被授予，重新尝试更新
-                checkForUpdates();
-            } else {
-                updateInfoText.setText("权限被拒绝，无法进行更新");
-                checkUpdateButton.setEnabled(true);
-                checkUpdateButton.setText("立即更新");
-            }
+        
+        switch (requestCode) {
+            case STORAGE_PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // 存储权限被授予，重新尝试更新
+                    performUpdate(pendingVersion);
+                } else {
+                    updateInfoText.setText("存储权限被拒绝，无法进行更新");
+                    checkUpdateButton.setEnabled(true);
+                    checkUpdateButton.setText("立即更新");
+                }
+                break;
+                
+            default:
+                break;
         }
     }
+    
 }

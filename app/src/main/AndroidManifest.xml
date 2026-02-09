@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="eg.kesry.loginApp">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" /> <!-- 网络权限 -->
     <uses-permission android:name="android.permission.VIBRATE" /> <!-- 震动权限 -->
@@ -16,6 +15,9 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!--下载管理器权限-->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!--Android 14+前台服务权限（如果需要）-->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     
     <!-- Android 11及以上版本需要查询其他应用 -->
     <queries>
@@ -25,6 +27,14 @@
         </intent>
         <intent>
             <action android:name="android.intent.action.INSTALL_PACKAGE" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="content" />
+        </intent>
+        <!-- 添加对下载管理器的查询权限 -->
+        <intent>
+            <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
         </intent>
     </queries>
 
@@ -53,6 +63,17 @@
         <activity android:name=".UpdateCheckActivity"
             android:exported="false">
         </activity>
+        
+        <!-- FileProvider配置用于安全分享APK文件 -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
     <!--使用特性-->

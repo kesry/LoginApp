@@ -6,9 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AlertDialog;
@@ -23,26 +21,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.stream.Collectors;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import okhttp3.MediaType;
-import okhttp3.Callback;
-import okhttp3.Call;
 import java.util.concurrent.TimeUnit;
 import java.util.Map;
-import java.util.Objects;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -51,6 +35,12 @@ import eg.kesry.loginApp.listener.AddServerListener;
 import eg.kesry.loginApp.callback.LoginCb;
 import eg.kesry.loginApp.callback.ScanCb;
 import eg.kesry.loginApp.callback.ConfirmLoginCb;
+
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.MediaType;
 
 public class MainActivity extends AppCompatActivity {
 
