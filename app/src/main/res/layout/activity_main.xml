@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#800080"
+        android:weightSum="5">
+        <LinearLayout android:layout_width="0dp" android:layout_height="60dp"
+            android:layout_weight="3"
+            android:gravity="center_vertical"
+            android:layout_marginLeft="10dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="LoginApp"
+                android:textSize="24sp"
+                android:letterSpacing="0.05"
+                android:textColor="#FFFFFF" />
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="0dp" android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical|end"
+            android:layout_marginRight="5dp">
+            <ImageButton
+                android:id="@+id/action_update"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:src="@android:drawable/ic_menu_info_details"
+                android:contentDescription="Update"
+                app:tint="#FFFFFF"
+                android:background="#800080" />
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="0dp" android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical|end"
+            android:layout_marginRight="10dp">
+            <ImageButton
+                android:id="@+id/action_add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:src="@android:drawable/ic_menu_add"
+                android:contentDescription="Add"
+                app:tint="#FFFFFF"
+                android:background="#800080" />
+        </LinearLayout>
+         
+
+    </LinearLayout>
+
+
+    <!-- 数据列表 -->
+
+    <ListView
+        android:id="@+id/list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:dividerHeight="1px"
+        android:divider="#E0E0E0" />
+    
+
+</LinearLayout>

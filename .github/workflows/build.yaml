@@ -1,0 +1,103 @@
+name: 构建LoginApp Android项目
+run-name: 编译LoginApp Android应用
+on:
+  push:
+    tags:
+      - v**
+
+jobs:
+  build-android-app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.HUB_TOKEN }}
+          submodules: recursive
+
+      - name: 配置编译用的签名
+        run: |
+            echo "${{secrets.SIGN}}" > signing.properties
+
+      - name: 设置JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Android SDK缓存
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/android-sdk
+            ~/.android
+          key: android-sdk-${{ runner.os }}-${{ hashFiles('**/build.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            android-sdk-${{ runner.os }}-
+
+      - name: Gradle缓存
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      - name: 设置Android SDK环境
+        run: |
+          export ANDROID_HOME=~/android-sdk
+          export ANDROID_SDK_ROOT=~/android-sdk
+          mkdir -p $ANDROID_HOME
+
+          # 下载并安装Android SDK命令行工具
+          cd /tmp
+
+          rm -rf cmdline-tools
+          rm -rf commandlinetools-linux-*.zip
+          rm -rf $ANDROID_HOME/*
+
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+          unzip commandlinetools-linux-*.zip
+          mkdir -p $ANDROID_HOME/cmdline-tools/latest
+          mv cmdline-tools/* $ANDROID_HOME/cmdline-tools/latest/
+          
+          # 更新PATH
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
+          
+          # 安装必要的SDK组件
+          (yes || true) | sdkmanager --sdk_root=$ANDROID_HOME --licenses
+          sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: 构建Android项目
+        run: |
+          export ANDROID_HOME=~/android-sdk
+          export ANDROID_SDK_ROOT=~/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
+          
+          # 给gradlew执行权限
+          chmod +x ./gradlew
+          
+          # 构建项目
+          ./gradlew clean assembleRelease --stacktrace
+
+      - name: 获取版本号
+        id: version
+        run: |
+          echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: 上传APK到Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            app/build/outputs/apk/release/app-release.apk
+          name: LoginApp v${{ steps.version.outputs.VERSION }}
+          tag_name: ${{ github.ref_name }}
+          body: |
+            ## LoginApp Android 应用发布
+            
+            版本: v${{ steps.version.outputs.VERSION }}
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
