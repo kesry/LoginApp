@@ -50,7 +50,10 @@ public class AddServerListener implements View.OnClickListener {
                     server.setUsername(username);
                     server.setPassword(password);
                     server.setHashString(hashString);
-
+                    // 保存到服务器列表
+                    activity.saveLoginServer(server);
+                    // 保存到文件
+                    activity.syncServers();
                     // 登录到服务器
                     activity.login(server);
                 })

@@ -52,7 +52,6 @@ import eg.kesry.loginApp.callback.LoginCb;
 import eg.kesry.loginApp.callback.ScanCb;
 import eg.kesry.loginApp.callback.ConfirmLoginCb;
 
-
 public class MainActivity extends AppCompatActivity {
 
     private ImageButton actionButton;
@@ -97,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         serverListAdapter.notifyDataSetChanged();
 
         actionButton.setOnClickListener(addServerListener);
-        
+
         // 设置更新按钮点击事件
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
             File file = new File(getFilesDir(), "servers.json");
             if (file.exists()) {
                 String jsonString = readAllBytesCompatible(file);
-                servers = jsonMapper.readValue(jsonString, new TypeReference<Map<String, LoginServer>>() {
+                servers = jsonMapper.readValue(jsonString, new TypeReference<LinkedHashMap<String, LoginServer>>() {
                 });
             } else {
                 file.createNewFile();
@@ -134,14 +133,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public String saveLoginServer(LoginServer server) {
+    // 保存数据
+    public void syncServers() {
         try {
             // 获取文件路径
             // 添加新的服务器信息
-            servers.put(server.getHashString(), server);
-            serverList.add(server);
-            serverListAdapter.notifyDataSetChanged();
-
             // 写入文件
             File file = new File(getFilesDir(), "servers.json");
             String jsonString = jsonMapper.writeValueAsString(servers);
@@ -150,12 +146,19 @@ public class MainActivity extends AppCompatActivity {
             FileOutputStream fos = new FileOutputStream(file);
             fos.write(jsonString.getBytes());
             fos.close();
-
-            return null; // 成功返回null
         } catch (Exception e) {
             e.printStackTrace();
-            return "保存失败: " + e.getMessage(); // 失败返回错误信息
+            Toast.makeText(this, "保存数据失败 " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
+
+    }
+
+    public void saveLoginServer(LoginServer server) {
+
+        servers.put(server.getHashString(), server);
+        serverList.add(server);
+        serverListAdapter.notifyDataSetChanged();
+
     }
 
     public void login(LoginServer server) {
@@ -176,8 +179,6 @@ public class MainActivity extends AppCompatActivity {
         // 设置回调
         LoginCb loginCb = new LoginCb(this);
         loginCb.setServer(server);
-        // 无论成功与否，都去保存这个服务信息
-        this.saveLoginServer(server);
         try {
             client.newCall(request).enqueue(loginCb);
         } catch (Exception e) {
@@ -291,7 +292,7 @@ public class MainActivity extends AppCompatActivity {
         return jsonMapper;
     }
 
-    public void removeServer(LoginServer server) { 
+    public void removeServer(LoginServer server) {
         servers.remove(server.getHashString());
         Iterator<LoginServer> iterator = serverList.iterator();
         while (iterator.hasNext()) {
@@ -304,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
         serverListAdapter.notifyDataSetChanged();
         makeText("删除成功", Toast.LENGTH_SHORT);
     }
-    
+
     public void editServer(LoginServer server) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_server, null);
@@ -324,15 +325,15 @@ public class MainActivity extends AppCompatActivity {
                     String serverHost = etServerHost.getText().toString();
                     String username = etServerLoginName.getText().toString();
                     String password = etServerLoginPwd.getText().toString();
-                    
+
                     if (serverHost.isEmpty() || username.isEmpty() || password.isEmpty()) {
                         makeText("必填项不能为空", Toast.LENGTH_SHORT);
                         return;
                     }
-                    
+
                     String oldHashString = server.getHashString();
                     String newHashString = SecurityUtil.md5HexString(serverHost + username);
-                    
+
                     // 创建新的服务器对象以确保数据一致性
                     LoginServer updatedServer = new LoginServer();
                     updatedServer.setServerUrl(serverHost);
@@ -342,12 +343,13 @@ public class MainActivity extends AppCompatActivity {
                     // 保留原有的mobileToken
                     updatedServer.setMobileToken(server.getMobileToken());
                     removeServer(server);
+                    // 删除之后，同步到文件
+                    syncServers();
                     // serverListAdapter.notifyDataSetChanged();
-                    makeText("正在重新登录...", Toast.LENGTH_SHORT);
-                    
+                    // 在登陆前保存一遍文件
+                    saveLoginServer(updatedServer);
                     // 自动重新登录
                     login(updatedServer);
-
 
                 })
                 .setNegativeButton("取消", (dialog, which) -> dialog.dismiss());

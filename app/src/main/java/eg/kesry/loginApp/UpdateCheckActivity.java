@@ -124,14 +124,32 @@ public class UpdateCheckActivity extends AppCompatActivity {
 
     private void dealVersionInfo(String version) { 
         // 移除版本字符串前后的空白字符进行比较
-        String trimmedRemoteVersion = version.trim();
-        String trimmedCurrentVersion = this.currentVersion.trim();
-        
-        if (Objects.equals(trimmedRemoteVersion, trimmedCurrentVersion)) {
+        try {
+
+            String[] remoteVersion = version.trim().split("\\.");
+            String[] localVersion = this.currentVersion.trim().split("\\.");
+
+            Integer bigVersionRe = Integer.valueOf(remoteVersion[0].substring(1));
+            Integer bigVersionLe = Integer.valueOf(localVersion[0].substring(1));
+            
+            if (bigVersionLe < bigVersionRe) {
+                showUpdateAvailable(version);
+            } else if (bigVersionLe == bigVersionRe) {
+                Integer smallVersionRe = Integer.valueOf(remoteVersion[1]); 
+                Integer smallVersionLe = Integer.valueOf(localVersion[1]);
+                if (smallVersionLe < smallVersionRe) {
+                    showUpdateAvailable(version);
+                } else {
+                    showNoUpdate();
+                }
+            } else {
+                showNoUpdate();
+            }
+        } catch (Exception e) {
+            Toast.makeText(UpdateCheckActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
             showNoUpdate();
-        } else {
-            showUpdateAvailable(version);
         }
+
     }
 
 
@@ -148,24 +166,29 @@ public class UpdateCheckActivity extends AppCompatActivity {
         try {
              client.newCall(request).enqueue(new Callback() { 
                 public void onFailure(Call call, IOException e) {
-                    runOnUiThread(() -> Toast.makeText(UpdateCheckActivity.this, "请求失败: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> {
+                        Toast.makeText(UpdateCheckActivity.this, "检查更新失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        checkUpdateButton.setEnabled(true);
+                    });
                 }
 
                 public void onResponse(Call call, Response response) throws IOException{
                     if (response.isSuccessful()) {
-                        String version = response.body().string();
+                        String version = response.body().string().trim();
                         runOnUiThread(() -> {
                             dealVersionInfo(version);
                         });
                     } else {
                         runOnUiThread(() -> Toast.makeText(UpdateCheckActivity.this, "检查更新失败: " + response.code(), Toast.LENGTH_SHORT).show());
+                        checkUpdateButton.setEnabled(true);
                     }
                 }
              });
 
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(UpdateCheckActivity.this, "请求失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "检查更新失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            checkUpdateButton.setEnabled(true);
         }
 
     }

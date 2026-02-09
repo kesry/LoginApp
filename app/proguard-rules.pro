@@ -62,6 +62,14 @@
 -keep class com.fasterxml.jackson.databind.node.* { *; }
 -keep class com.fasterxml.jackson.annotation.** { *; }
 
+# 添加Jackson泛型类型保留规则
+-keep class com.fasterxml.jackson.core.type.TypeReference { *; }
+-keep class com.fasterxml.jackson.core.type.ResolvedType { *; }
+-keep class com.fasterxml.jackson.databind.type.TypeFactory { *; }
+
+# 保留泛型类型信息
+-keepattributes Signature,InnerClasses
+
 # OkHttp3保护规则
 -keep class okhttp3.** { *; }
 -keep interface okhttp3.** { *; }

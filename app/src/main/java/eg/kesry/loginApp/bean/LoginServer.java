@@ -12,6 +12,8 @@ public class LoginServer {
 
     private String mobileToken;
 
+    private Integer serverStatus; // 显示服务登录状态
+
     public String getServerUrl() {
         return serverUrl;
     }
@@ -52,10 +54,19 @@ public class LoginServer {
         this.mobileToken = mobileToken;
     }
 
+    public Integer getServerStatus() {
+        return serverStatus;
+    }
+
+    public void setServerStatus(Integer serverStatus) {
+        this.serverStatus = serverStatus;
+    }
+
     @Override
     public String toString() {
         return "LoginServer [serverUrl=" + serverUrl + ", username=" + username + ", password=" + password
-                + ", hashString=" + hashString + ", mobileToken=" + mobileToken + "]";
+                + ", hashString=" + hashString + ", mobileToken=" + mobileToken + ", serverStatus=" + serverStatus
+                + "]";
     }
 
 }

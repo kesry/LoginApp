@@ -66,7 +66,12 @@ public class ServerListAdapter extends BaseAdapter {
 
         holder.imageButton.setOnClickListener(v -> {
             // 打开摄像头扫码
-            activity.scan(loginServer);
+            if (loginServer.getServerStatus() == 1) {
+
+                activity.scan(loginServer);
+            } else {
+                activity.makeText("请先登录", Toast.LENGTH_SHORT);
+            }
         });
 
         holder.editButton.setOnClickListener(v -> {
