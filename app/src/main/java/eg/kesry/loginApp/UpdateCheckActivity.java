@@ -33,6 +33,8 @@ import okhttp3.MediaType;
 import okhttp3.Callback;
 import okhttp3.Call;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -199,21 +201,75 @@ public class UpdateCheckActivity extends AppCompatActivity {
         checkUpdateButton.setEnabled(false);
         checkUpdateButton.setText("更新中...");
         
-        // 检查存储权限
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) 
-                != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, 
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-                updateInfoText.setText("请授予存储权限以继续更新");
-                checkUpdateButton.setEnabled(true);
-                checkUpdateButton.setText("立即更新");
-                return;
-            }
+        // 检查存储权限（适配不同Android版本）
+        if (!checkStoragePermissions()) {
+            return;
+        }
+        
+        // 检查安装权限
+        if (!checkInstallPermission()) {
+            return;
         }
 
         // 下载APK文件
         downloadApk(version);
+    }
+    
+    /**
+     * 检查存储权限（针对APK下载优化）
+     * @return 是否有权限
+     */
+    private boolean checkStoragePermissions() {
+        List<String> permissionsNeeded = new ArrayList<>();
+        
+        // Android 13+ 使用DownloadManager不需要特殊存储权限
+        // 但需要通知权限来显示下载进度
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) 
+                != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.POST_NOTIFICATIONS);
+            }
+        } else {
+            // Android 6.0-12 需要传统的存储权限
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) 
+                != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) 
+                != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+            }
+        }
+        
+        if (!permissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(this, 
+                permissionsNeeded.toArray(new String[0]), 1);
+            updateInfoText.setText("请授予权限以继续更新");
+            checkUpdateButton.setEnabled(true);
+            checkUpdateButton.setText("立即更新");
+            return false;
+        }
+        return true;
+    }
+    
+    /**
+     * 检查安装未知应用权限
+     * @return 是否有权限
+     */
+    private boolean checkInstallPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!getPackageManager().canRequestPackageInstalls()) {
+                // 跳转到设置页面请求安装权限
+                Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
+                intent.setData(Uri.parse("package:" + getPackageName()));
+                startActivity(intent);
+                updateInfoText.setText("请允许安装未知应用权限");
+                checkUpdateButton.setEnabled(true);
+                checkUpdateButton.setText("立即更新");
+                return false;
+            }
+        }
+        return true;
     }
 
     private void downloadApk(String version) {
@@ -293,7 +349,7 @@ public class UpdateCheckActivity extends AppCompatActivity {
                 // 权限被授予，重新尝试更新
                 checkForUpdates();
             } else {
-                updateInfoText.setText("存储权限被拒绝，无法进行更新");
+                updateInfoText.setText("权限被拒绝，无法进行更新");
                 checkUpdateButton.setEnabled(true);
                 checkUpdateButton.setText("立即更新");
             }
