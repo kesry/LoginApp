@@ -10,8 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="#800080"
-        android:weightSum="4">
+        android:background="#7fd457">
         <LinearLayout android:layout_width="0dp" android:layout_height="60dp"
             android:layout_weight="3"
             android:gravity="center_vertical"
@@ -22,24 +21,8 @@
                 android:text="LoginApp"
                 android:textSize="24sp"
                 android:letterSpacing="0.05"
-                android:textColor="#FFFFFF" />
+                android:textColor="#000000" />
         </LinearLayout>
-
-        <LinearLayout android:layout_width="0dp" android:layout_height="60dp"
-            android:layout_weight="1"
-            android:gravity="center_vertical|end"
-            android:layout_marginRight="10dp">
-            <ImageButton
-                android:id="@+id/action_add"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:src="@android:drawable/ic_menu_add"
-                android:contentDescription="Add"
-                app:tint="#FFFFFF"
-                android:background="#800080" />
-        </LinearLayout>
-         
 
     </LinearLayout>
 
@@ -77,17 +60,17 @@
             android:padding="8dp">
             
             <ImageButton
-                android:id="@+id/btn_list"
+                android:id="@+id/btn_add_server"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:src="@android:drawable/ic_menu_sort_by_size"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:contentDescription="列表" />
+                android:contentDescription="添加" />
                 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="列表"
+                android:text="添加"
                 android:textSize="12sp"
                 android:textColor="#666666"
                 android:layout_marginTop="2dp" />

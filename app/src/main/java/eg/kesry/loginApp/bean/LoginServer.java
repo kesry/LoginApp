@@ -55,7 +55,7 @@ public class LoginServer {
     }
 
     public Integer getServerStatus() {
-        return serverStatus;
+        return serverStatus != null ? serverStatus : 0;
     }
 
     public void setServerStatus(Integer serverStatus) {

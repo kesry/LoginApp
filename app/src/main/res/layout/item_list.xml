@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:padding="16dp">
-
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:background="#fafafa"
-        android:weightSum="6">
+        android:weightSum="4">
 
         <LinearLayout android:layout_width="0dp"
             android:layout_weight="3"
             android:gravity="center_vertical"
-                android:textColor="#000"
+            android:textColor="#000"
             android:layout_height="wrap_content">
 
             <TextView
@@ -26,51 +26,74 @@
                 android:layout_height="wrap_content"
                 android:text="用户名"
                 android:textSize="16sp"
-                android:gravity="center_vertical" />
+                android:textColor="@color/black"
+                android:textColorHint="@color/black"
+                android:gravity="center_vertical"
+                tools:text="用户名"
+                tools:textColor="@color/black" />
         </LinearLayout>
 
         <LinearLayout android:layout_width="0dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:layout_height="30dp">
+            android:layout_height="wrap_content">
 
-            <ImageButton
-                android:id="@+id/button_edit"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginStart="8dp"
-                android:background="#fafafa"
-                android:src="@android:drawable/ic_menu_edit" />
+            <Button
+                android:id="@+id/button_menu"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@android:color/transparent"
+                android:drawableTop="@drawable/ic_menu"
+                android:padding="8dp"
+                android:minWidth="48dp"
+                android:minHeight="48dp" />
         </LinearLayout>
 
-        <LinearLayout android:layout_width="0dp"
+    </LinearLayout>
+
+    <!-- 折叠菜单容器 -->
+    <LinearLayout
+        android:id="@+id/menu_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#f0f0f0"
+        android:padding="8dp"
+        android:visibility="gone"
+        android:weightSum="3">
+
+        <Button
+            android:id="@+id/button_edit"
+            android:layout_width="0dp"
             android:layout_weight="1"
-            android:gravity="center"
-            android:layout_height="30dp">
+            android:layout_height="wrap_content"
+            android:text="编辑"
+            android:textSize="12sp"
+            android:background="@drawable/button_background"
+            android:layout_margin="4dp"
+            android:minHeight="36dp" />
 
-            <ImageButton
-                android:id="@+id/button_scan"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginStart="0dp"
-                android:layout_marginEnd="0dp"
-                android:background="#fafafa"
-                android:src="?android:attr/actionModeWebSearchDrawable" />
-        </LinearLayout>
-
-        <LinearLayout android:layout_width="0dp"
+        <Button
+            android:id="@+id/button_scan"
+            android:layout_width="0dp"
             android:layout_weight="1"
-            android:gravity="center"
-            android:layout_height="30dp">
+            android:layout_height="wrap_content"
+            android:text="扫码"
+            android:textSize="12sp"
+            android:background="@drawable/button_background"
+            android:layout_margin="4dp"
+            android:minHeight="36dp" />
 
-            <ImageButton
-                android:id="@+id/button_delete"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="0dp"
-                android:background="#fafafa"
-                android:src="@android:drawable/ic_delete"/>
-        </LinearLayout>
+        <Button
+            android:id="@+id/button_delete"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="删除"
+            android:textSize="12sp"
+            android:background="@drawable/button_background"
+            android:layout_margin="4dp"
+            android:minHeight="36dp" />
 
     </LinearLayout>
 

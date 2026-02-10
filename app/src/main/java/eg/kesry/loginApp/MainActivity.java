@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         addServerListener = new AddServerListener(this, getLayoutInflater());
 
         // 初始化组件信息
-        actionButton = findViewById(R.id.action_add);
+        actionButton = findViewById(R.id.btn_add_server);
         updateButton = findViewById(R.id.btn_home); // 初始化更新按钮
 
         serverListAdapter = new ServerListAdapter(this, serverList);
@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
             // 调试的时候打开
-            // Toast.makeText(this, "读取数据失败 " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "读取数据失败 " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
         return servers;
