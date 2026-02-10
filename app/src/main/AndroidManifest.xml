@@ -63,6 +63,9 @@
         <activity android:name=".UpdateCheckActivity"
             android:exported="false">
         </activity>
+        <activity android:name=".AboutMeActivity"
+            android:exported="false">
+        </activity>
         
         <!-- FileProvider配置用于安全分享APK文件 -->
         <provider

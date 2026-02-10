@@ -6,40 +6,48 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
-import android.database.Cursor;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Environment;
-import android.provider.Settings;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.Callback;
-import okhttp3.Call;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class UpdateCheckActivity extends AppCompatActivity {
 
     private TextView currentVersionText;
     private Button checkUpdateButton;
     private TextView updateInfoText;
+    private ImageButton btnBack;
 
     private String currentVersion;
     private String pendingVersion;
@@ -65,6 +73,7 @@ public class UpdateCheckActivity extends AppCompatActivity {
         currentVersionText = findViewById(R.id.current_version_text);
         checkUpdateButton = findViewById(R.id.check_update_button);
         updateInfoText = findViewById(R.id.update_info_text);
+        btnBack = findViewById(R.id.btn_back);
 
         // 初始化DownloadManager
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
@@ -78,6 +87,11 @@ public class UpdateCheckActivity extends AppCompatActivity {
             public void onClick(View v) {
                 checkForUpdates();
             }
+        });
+
+        // 设置返回按钮点击事件
+        btnBack.setOnClickListener(v -> {
+            finish(); // 关闭当前Activity，返回上一页
         });
     }
 

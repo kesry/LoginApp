@@ -42,7 +42,7 @@
             
     </ScrollView>
 
-    <!-- 底部放 列表、主页两个图标按钮 -->
+    <!-- 底部放 列表、关于两个图标按钮 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -89,14 +89,14 @@
                 android:id="@+id/btn_home"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:src="@android:drawable/ic_menu_compass"
+                android:src="@android:drawable/ic_menu_info_details"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:contentDescription="更新" />
+                android:contentDescription="关于" />
                 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="更新"
+                android:text="关于"
                 android:textSize="12sp"
                 android:textColor="#666666"
                 android:layout_marginTop="2dp" />

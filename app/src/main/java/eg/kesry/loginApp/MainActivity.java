@@ -45,7 +45,7 @@ import okhttp3.MediaType;
 public class MainActivity extends AppCompatActivity {
 
     private ImageButton actionButton;
-    private ImageButton updateButton; // 新增更新按钮
+    private ImageButton aboutButton; // 将更新按钮改为关于按钮
 
     private OkHttpClient client = new OkHttpClient.Builder().connectTimeout(15, TimeUnit.SECONDS).build();
 
@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
         // 初始化组件信息
         actionButton = findViewById(R.id.btn_add_server);
-        updateButton = findViewById(R.id.btn_home); // 初始化更新按钮
+        aboutButton = findViewById(R.id.btn_home); // 初始化关于按钮
 
         serverListAdapter = new ServerListAdapter(this, serverList);
         listView = findViewById(R.id.list_view);
@@ -87,11 +87,11 @@ public class MainActivity extends AppCompatActivity {
 
         actionButton.setOnClickListener(addServerListener);
 
-        // 设置更新按钮点击事件
-        updateButton.setOnClickListener(new View.OnClickListener() {
+        // 设置关于按钮点击事件
+        aboutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, UpdateCheckActivity.class);
+                Intent intent = new Intent(MainActivity.this, AboutMeActivity.class);
                 startActivity(intent);
             }
         });
