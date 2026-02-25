@@ -334,10 +334,12 @@ public class MainActivity extends AppCompatActivity {
                     updatedServer.setMobileToken(server.getMobileToken());
                     removeServer(server);
                     // 删除之后，同步到文件
-                    syncServers();
+                    // syncServers();
                     // serverListAdapter.notifyDataSetChanged();
                     // 在登陆前保存一遍文件
                     saveLoginServer(updatedServer);
+                    // 同步到文件
+                    syncServers();
                     // 自动重新登录
                     login(updatedServer);
 
