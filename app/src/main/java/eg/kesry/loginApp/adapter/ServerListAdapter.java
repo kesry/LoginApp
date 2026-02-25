@@ -117,6 +117,8 @@ public class ServerListAdapter extends BaseAdapter {
                             // 具体删除功能
                             activity.removeServer(currentServer);
                             activity.makeText("删除成功", Toast.LENGTH_SHORT);
+                            // 同步变更到文件
+                            activity.syncServers();
                         })
                         .setNegativeButton("取消", (dialog, which) -> {
                             dialog.dismiss();
