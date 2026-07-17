@@ -154,10 +154,17 @@ public class MainActivity extends AppCompatActivity {
 
     public void login(LoginServer server) {
 
-        MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
-        String formData = "username=" + server.getUsername() + "&password=" + server.getPassword();
+        // MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
+        // String formData = "username=" +  + "&password=" + ;
 
-        RequestBody body = RequestBody.create(formData, mediaType);
+        // RequestBody body = RequestBody.create(formData, mediaType);
+
+
+        RequestBody body = new FormBody.Builder()
+            .add("username", server.getUsername())
+            .add("password", server.getPassword()) // 这里直接给原始值
+            .build();
+
         Request request = new Request.Builder()
                 .url(HttpUrl.get(server.getServerUrl() + "/login").newBuilder()
                         .build()
